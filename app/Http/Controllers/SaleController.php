@@ -6,8 +6,10 @@ use App\Exceptions\Inventory\InsufficientStockException;
 use App\Exceptions\Inventory\ProductNotFoundException;
 use App\Models\Sale;
 use App\Services\SaleService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class SaleController extends Controller
@@ -18,25 +20,53 @@ class SaleController extends Controller
 
     public function getSale(Sale $sale)
     {
-        $sale->load(['items.product']);
-        $formattedSale = $this->saleService->formatSale($sale);
+        try {
 
-        return response()->json([
-            'data' => $formattedSale
-        ]);
+            $sale->load(['items.product']);
+
+            $detailsSale = $this->saleService->formatSale($sale);
+
+            return response()->json([
+                'data' => $detailsSale
+            ]);
+
+        } catch (ModelNotFoundException $e) {
+
+            Log::warning('Algo deu errado ao registrar a venda.', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ]);
+
+            return response()->json([
+                'error' => 'Venda não encontrada na base de dados'
+            ], Response::HTTP_NOT_FOUND);
+
+        } catch (\Exception $e) {
+
+            Log::warning('Algo deu errado ao registrar a venda.', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ]);
+
+            return response()->json([
+                'error' => 'Ops! Tivemos um problema ao buscar os detalhes da venda.',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+
+        }
     }
 
     public function createSale(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'items' => 'required',
-            'items.*.product_id' => 'required|integer',
-            'items.*.quantity' => 'required|numeric|min:0.001',
-            'items.*.unit_price' => 'required|numeric|min:0.001',
-            'items.*.unit_cost' => 'required|numeric|min:0.001',
-        ]);
-
         try {
+
+            $validated = $request->validate([
+                'items' => 'required',
+                'items.*.product_id' => 'required|integer',
+                'items.*.quantity' => 'required|numeric|min:0.001',
+                'items.*.unit_price' => 'required|numeric|min:0.001',
+                'items.*.unit_cost' => 'required|numeric|min:0.001',
+            ]);
 
             $this->saleService->createSale($validated);
             
@@ -55,6 +85,10 @@ class SaleController extends Controller
             return response()->json($response, $e->getCode());
 
         } catch (\Exception $e) {
+            Log::warning('Algo deu errado ao registrar a venda.', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode()
+            ]);
 
             return response()->json([
                 'message' => 'Algo deu errado ao registrar a venda.',
