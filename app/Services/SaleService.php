@@ -19,6 +19,8 @@ class SaleService
     public function createSale(array $data): void
     {
         try {
+            $this->inventoryService->checkInventory($data['items']);
+
             $totals = $this->calculateTotals($data['items']);
 
             $sale = $this->saveSale($totals);

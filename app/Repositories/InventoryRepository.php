@@ -38,9 +38,6 @@ class InventoryRepository
 
     public function decrementQuantity(Inventory $inventory, int $quantity): void
     {
-        if ($inventory->quantity < $quantity)
-            throw new \RuntimeException("Estoque insuficiente para o produto: {$inventory->product_id}");
-        
         $inventory->decrement('quantity', $quantity);
     }
 }
