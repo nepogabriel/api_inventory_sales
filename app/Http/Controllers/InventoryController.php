@@ -12,15 +12,17 @@ class InventoryController extends Controller
         private InventoryService $inventoryService
     ) {}
 
-    public function index()
+    public function getAll()
     {
-        //
+        $inventory = $this->inventoryService->getAll();
+
+        return response()->json($inventory, Response::HTTP_OK);
     }
 
-    public function store(Request $request)
+    public function save(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'product_id' => 'required',
             'quantity' => 'required',
             'last_updated' => 'nullable|date',
         ]);

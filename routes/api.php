@@ -9,6 +9,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::controller(InventoryController::class)->group(function () {
-    Route::get('/inventory', 'index')->name('inventory.index');
-    Route::post('/inventory', 'store')->name('inventory.store');
+    Route::get('/inventory', 'getAll')->name('inventory.index');
+    Route::post('/inventory', 'save')->name('inventory.store');
 });
