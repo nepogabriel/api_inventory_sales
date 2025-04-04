@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\Inventory\ProductNotFoundException;
 use App\Models\Inventory;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 class InventoryRepository
@@ -31,7 +31,7 @@ class InventoryRepository
         $inventory = Inventory::where('product_id', $productId)->first();
         
         if (!$inventory)
-            throw new ModelNotFoundException("Produto não encontrado no estoque: {$productId}");
+            throw new ProductNotFoundException($productId);
         
         return $inventory;
     }

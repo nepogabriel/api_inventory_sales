@@ -24,7 +24,10 @@ class InsufficientStockException extends Exception
             $this->requestedQuantity
         );
 
-        parent::__construct($message, HttpFoundation::HTTP_UNPROCESSABLE_ENTITY);
+        parent::__construct(
+            message: $message,
+            code: HttpFoundation::HTTP_UNPROCESSABLE_ENTITY
+        );
     }
 
     public function getProductId(): int
@@ -60,6 +63,6 @@ class InsufficientStockException extends Exception
             'product_id' => $this->productId,
             'available_quantity' => $this->availableQuantity,
             'required_quantity' => $this->requestedQuantity
-        ], HttpFoundation::HTTP_UNPROCESSABLE_ENTITY);
+        ], $this->getCode());
     }
 }

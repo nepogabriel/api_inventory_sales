@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\Inventory\InsufficientStockException;
+use App\Exceptions\Inventory\ProductNotFoundException;
 use App\Services\SaleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,18 +26,29 @@ class SaleController extends Controller
         ]);
 
         try {
+
             $this->saleService->createSale($validated);
             
             return response()->json([
                 'message' => 'Venda registrada com sucesso!'
             ], Response::HTTP_CREATED);
+
         } catch (InsufficientStockException $e) {
+
             $response = json_decode($e->render($request)->content(), true);
-            return response()->json($response, Response::HTTP_UNPROCESSABLE_ENTITY);
-        }catch (\Exception $e) {
+            return response()->json($response, $e->getCode());
+
+        } catch (ProductNotFoundException $e) {
+
+            $response = json_decode($e->render($request)->content(), true);
+            return response()->json($response, $e->getCode());
+
+        } catch (\Exception $e) {
+
             return response()->json([
                 'message' => 'Algo deu errado ao registrar a venda.',
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
+
         }
     }
 }
