@@ -84,4 +84,18 @@ class SaleService
             'total_profit' => $totalAmount - $totalCost,
         ];
     }
+
+    public function formatSale(Sale $sale): array
+    {
+        return [
+            'id' => $sale->id,
+            'total_amount' => FormatterService::formatMoney($sale->total_amount),
+            'total_cost' => FormatterService::formatMoney($sale->total_cost),
+            'total_profit' => FormatterService::formatMoney($sale->total_profit),
+            'status' => $sale->status,
+            'created_at' => FormatterService::formatDate($sale->created_at),
+            'updated_at' => FormatterService::formatDate($sale->updated_at),
+            'items' => $sale->items->map(fn ($item) => SaleItemService::formatSaleItem($item)),
+        ];
+    }
 }

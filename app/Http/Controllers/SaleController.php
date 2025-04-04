@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\Inventory\InsufficientStockException;
 use App\Exceptions\Inventory\ProductNotFoundException;
+use App\Models\Sale;
 use App\Services\SaleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,16 @@ class SaleController extends Controller
     public function __construct(
         private SaleService $saleService
     ) {}
+
+    public function getSale(Sale $sale)
+    {
+        $sale->load(['items.product']);
+        $formattedSale = $this->saleService->formatSale($sale);
+
+        return response()->json([
+            'data' => $formattedSale
+        ]);
+    }
 
     public function createSale(Request $request): JsonResponse
     {

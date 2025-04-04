@@ -15,5 +15,6 @@ Route::controller(InventoryController::class)->group(function () {
 });
 
 Route::controller(SaleController::class)->group(function () {
+    Route::get('/sales/{sale}', 'getSale')->name('sale.get');
     Route::post('/sales', 'createSale')->name('sale.create');
 });
