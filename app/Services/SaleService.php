@@ -68,7 +68,7 @@ class SaleService
         $this->saleItemRepository->save($saleItems);
     }
 
-    private function calculateTotals(array $items): array
+    public function calculateTotals(array $items): array
     {
         $totalAmount = 0;
         $totalCost = 0;
